@@ -2,8 +2,6 @@ import time
 from prometheus_client.core import GaugeMetricFamily, REGISTRY, CounterMetricFamily
 from prometheus_client import start_http_server
 import os
-import json
-import random
 import requests
 
 class VolumezExporter(object):
@@ -32,7 +30,7 @@ class VolumezExporter(object):
         healthcheck_response = requests.request("GET", url + '/healthcheck', headers=headers)
         healthcheckdict = healthcheck_response.tojson()
         healthcheck = healthcheckdict["Message"]
-        
+
         # Metric Translations
         if healthcheck == 'ok':
             healthcheck = 0
