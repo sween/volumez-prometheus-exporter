@@ -23,7 +23,5 @@ spec:
         - name: VOLUMEZ_TOKEN
           valueFrom:
             secretKeyRef:
-              #name: volumez-user-pass
-              # key: volumez_password
-              name: volumez-user-pass
-              key: volumez_password
+              name: volumez-api-key
+              key: volumez_token
