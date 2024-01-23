@@ -1,7 +1,10 @@
-# Rivian Prometheus Exporter
-Export Volumez API Data as prometheus metrics.
+# Volumez Prometheus Exporter
+Export [Volumez](https://volumez.com/) API Data as prometheus metrics.
 
 <img src="https://github.com/sween/volumez-prometheus-exporter/raw/main/assets/volumez-prometheus-exporter.png" alt="Volumez Metrics">
+
+Uses the [Volumez Rest API](https://volumez.com/static/swagger.html) 
+
 
 ## Quick Start
 
