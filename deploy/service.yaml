@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: volumez-prometheus-exporter-service
+spec:
+  selector:
+    app: volumez-prometheus-exporter
+  type: LoadBalancer
+  ports:
+  - protocol: TCP
+    port: 5000
+    targetPort: 8000

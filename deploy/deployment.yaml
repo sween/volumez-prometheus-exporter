@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: volumez-prometheus-exporter-deployment
+  labels:
+    app: volumez-prometheus-exporter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: volumez-prometheus-exporter
+  template:
+    metadata:
+      labels:
+        app: volumez-prometheus-exporter
+    spec:
+      containers:
+      - name: volumez-prometheus-exporter
+        image: sween/volumez-prometheus-exporter:latest
+        ports:
+        - containerPort: 5000
+        env:
+        - name: VOLUMEZ_TOKEN
+          valueFrom:
+            secretKeyRef:
+              #name: volumez-user-pass
+              # key: volumez_password
+              name: volumez-user-pass
+              key: volumez_password
