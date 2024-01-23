@@ -10,14 +10,7 @@ class VolumezExporter(object):
     def __init__(self):
 
         self.apitoken = os.environ['VOLUMEZ_TOKEN']
-        url = "https://api.volumez.com"
-        headers = {
-            'Authorization': os.environ['VOLUMEZ_TOKEN'],
-            'Content-Type': 'application/json'
-        }
-
-        response = requests.request("GET", url, headers=headers)
-        
+        self.tenantid = "d55c9f58-88f1-41ef-bcbe-fbdca60affff"
 
     def collect(self):
 
@@ -37,15 +30,16 @@ class VolumezExporter(object):
         }
         '''
         healthcheck_response = requests.request("GET", url + '/healthcheck', headers=headers)
-        healthcheck = healthcheck_response["Message"]
-
+        healthcheckdict = healthcheck_response.tojson()
+        healthcheck = healthcheckdict["Message"]
+        
         # Metric Translations
         if healthcheck == 'ok':
             healthcheck = 0
         else:
             healthcheck = 1
 
-        c = CounterMetricFamily("volumez_healthcheck", 'Overall Healthcheck...', labels=['volumez'])
+        c = CounterMetricFamily("volumez_healthcheck", 'Overall Healthcheck...', labels=[self.tenant])
         c.add_metric("prod", healthcheck)
         yield c
 
