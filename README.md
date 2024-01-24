@@ -48,8 +48,7 @@ Service:
 <img src="https://github.com/sween/volumez-prometheus-exporter/raw/main/assets/volumez-prometheus-service.png" alt="Volumez Metrics">
 
 k8sviz:
-<img src="https://github.com/sween/volumez-prometheus-exporter/raw/main/assets/volumez-prometheus-kviz.png" alt="Volumez Metrics">
-
+<img src="https://github.com/sween/volumez-prometheus-exporter/raw/main/assets/volumez-kviz.png" alt="Volumez Metrics">
 
 
 ### Metric Exported
