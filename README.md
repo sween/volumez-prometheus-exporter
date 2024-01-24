@@ -35,17 +35,28 @@ kubectl create secret generic volumez-api-key -n volumez \
 Apply Deployment:
 
 ```
-kubectl apply -f deploy/* -n volumez
+kubectl apply -f deploy/deployment.yaml -n volumez
+kubectl apply -f deploy/service.yaml -n volumez
 ```
 
 You should see the deployment running on the cluster, explore the services to see how to reach the prometheus endpoint, in this case MetalLB.
 
-<pic1>
+Pod:
+<img src="https://github.com/sween/volumez-prometheus-exporter/raw/main/assets/volumez-prometheus-pod.png" alt="Volumez Metrics">
+
+Service:
+<img src="https://github.com/sween/volumez-prometheus-exporter/raw/main/assets/volumez-prometheus-service.png" alt="Volumez Metrics">
+
+k8sviz:
+<img src="https://github.com/sween/volumez-prometheus-exporter/raw/main/assets/volumez-prometheus-kviz.png" alt="Volumez Metrics">
+
+
 
 ### Metric Exported
-At this point, not the most exhaustive list, but now we iterate.
+At this point, not the most exhaustive list of one, but now we iterate.
 
-<pic2>
+<img src="https://github.com/sween/volumez-prometheus-exporter/raw/main/assets/volumez-prometheus-metrics.png" alt="Volumez Metrics">
+
 
 
 

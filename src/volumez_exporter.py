@@ -27,18 +27,19 @@ class VolumezExporter(object):
             "Message": "ok"
         }
         '''
+        healthcheck = 0
         healthcheck_response = requests.request("GET", url + '/healthcheck', headers=headers)
-        healthcheckdict = healthcheck_response.tojson()
+        healthcheckdict = healthcheck_response.json()
         healthcheck = healthcheckdict["Message"]
 
         # Metric Translations
         if healthcheck == 'ok':
-            healthcheck = 0
-        else:
             healthcheck = 1
-
-        c = CounterMetricFamily("volumez_healthcheck", 'Overall Healthcheck...', labels=[self.tenant])
-        c.add_metric("prod", healthcheck)
+        else:
+            healthcheck = 0
+        print(str(healthcheck))
+        c = CounterMetricFamily("volumez_healthcheck", 'Overall Healthcheck Example...', labels=['tenant'])
+        c.add_metric([self.tenantid], healthcheck)
         yield c
 
 
@@ -47,5 +48,6 @@ if __name__ == '__main__':
     REGISTRY.register(VolumezExporter())
     while True:
         REGISTRY.collect()
+        print("Polling....")
         # lets not piss off the Site Reliability Teams at Volumez
         time.sleep(90)
