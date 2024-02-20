@@ -8,7 +8,7 @@ class VolumezExporter(object):
     def __init__(self):
 
         self.apitoken = os.environ['VOLUMEZ_TOKEN']
-        self.tenantid = "d55c9f58-88f1-41ef-bcbe-fbdca60affff"
+        self.tenantid = os.environ['VOLUMEZ_TENANT']
 
     def collect(self):
 
