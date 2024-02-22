@@ -25,3 +25,8 @@ spec:
             secretKeyRef:
               name: volumez-api-key
               key: volumez_token
+        - name: VOLUMEZ_TENANT
+          valueFrom:
+            secretKeyRef:
+              name: volumez-tenant
+              key: volumez_tenant
