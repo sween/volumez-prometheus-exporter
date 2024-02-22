@@ -10,5 +10,6 @@ WORKDIR /src
 
 ENV PYTHONPATH '/src/'
 ENV VOLUMEZ_TOKEN 'secret'
+ENV VOLUMEZ_TENANT 'tenant'
 
 CMD ["python" , "/src/volumez_exporter.py"]

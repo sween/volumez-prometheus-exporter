@@ -5,6 +5,8 @@ Export [Volumez](https://volumez.com/) API Data as prometheus metrics.
 
 Uses the [Volumez Rest API](https://volumez.com/static/swagger.html) 
 
+## Overview
+<img src="https://github.com/sween/volumez-prometheus-exporter/raw/main/assets/volumez-metrics-overview.png" alt="Volumez Metrics Overview">
 
 ## Quick Start
 
