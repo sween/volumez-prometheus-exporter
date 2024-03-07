@@ -9,7 +9,13 @@ WORKDIR /src
 
 
 ENV PYTHONPATH '/src/'
-ENV VOLUMEZ_TOKEN 'secret'
-ENV VOLUMEZ_TENANT 'tenant'
+ENV VLZ_USER 'secret'
+ENV VLZ_PASS 'tenant'
+ENV VLZ_USERPOOLID 'userpoolid'
+ENV VLZ_CLIENTID 'clientid'
+ENV VLZ_POLLING 'polling'
+
+RUN pip install -r requirements.txt
+
 
 CMD ["python" , "/src/volumez_exporter.py"]

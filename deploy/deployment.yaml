@@ -20,13 +20,28 @@ spec:
         ports:
         - containerPort: 5000
         env:
-        - name: VOLUMEZ_TOKEN
+        - name: VLZ_USER
           valueFrom:
             secretKeyRef:
-              name: volumez-api-key
-              key: volumez_token
-        - name: VOLUMEZ_TENANT
+              name: volumez-secret
+              key: volumez_user
+        - name: VLZ_PASS
           valueFrom:
             secretKeyRef:
-              name: volumez-tenant
-              key: volumez_tenant
+              name: vlz-secret
+              key: vlz_pass
+        - name: VLZ_USERPOOLID
+          valueFrom:
+            secretKeyRef:
+              name: vlz-secret
+              key: vlz_userpoolid
+        - name: VLZ_CLIENTID
+          valueFrom:
+            secretKeyRef:
+              name: vlz-secret
+              key: vlz_clientid
+        - name: VLZ_POLLING
+          valueFrom:
+            secretKeyRef:
+              name: vlz-secret
+              key: vlz_polling
