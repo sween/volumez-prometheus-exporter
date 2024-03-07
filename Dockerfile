@@ -9,6 +9,7 @@ WORKDIR /src
 
 
 ENV PYTHONPATH '/src/'
+ENV PYTHONBUFFERED=1
 ENV VLZ_USER 'secret'
 ENV VLZ_PASS 'tenant'
 ENV VLZ_USERPOOLID 'userpoolid'

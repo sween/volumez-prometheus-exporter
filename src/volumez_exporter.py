@@ -11,6 +11,8 @@ class VolumezExporter(object):
     def __init__(self):
 
         self.access_token = self.get_access_token()
+        print(self.access_token)
+        print("BLEH!")
         #self.refresh_token = self.trade_for_refresh_token()
         
 
@@ -23,7 +25,7 @@ class VolumezExporter(object):
             'Authorization': self.access_token, # needs to be refresh_token
             'Content-Type': 'application/json'
         }
-
+        print(headers)
         healthcheck = 0
         healthcheck_response = requests.request("GET", url + '/healthcheck', headers=headers)
         healthcheckdict = healthcheck_response.json()
@@ -111,20 +113,20 @@ class VolumezExporter(object):
         # here id like to expose "count" to Coralogix to watch for change on the integer
 
         # jobs metrics
-        jobs_response = requests.request("GET", url + '/jobs', headers=headers)
-        jobs_list = jobs_response.json()
-        print(jobs_list)
-        jobs_container = []
-        for jobs in jobs_list:
+        #jobs_response = requests.request("GET", url + '/jobs', headers=headers)
+        #jobs_list = jobs_response.json()
+        #print(jobs_list)
+        #jobs_container = []
+        #for jobs in jobs_list:
             #print(jobs['object'])
-            jobs_container.extend(jobs)
+        #    jobs_container.extend(jobs)
 
-            for job in jobs_container:
+        #    for job in jobs_container:
                 #print(job + ":" + str(jobs[job]))
-                c = CounterMetricFamily("volumez_jobs_" + job, ' volumez jobs metrics...', labels=['instance'])
-                if type(jobs[job]) != str:
-                    c.add_metric([jobs['object']], jobs[job])
-                    yield c
+        #        c = CounterMetricFamily("volumez_jobs_" + job, ' volumez jobs metrics...', labels=['instance'])
+        #        if type(jobs[job]) != str:
+        #            c.add_metric([jobs['object']], jobs[job])
+        #            yield c
 
     def get_access_token(self):
         
