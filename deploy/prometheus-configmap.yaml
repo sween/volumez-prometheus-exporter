@@ -25,4 +25,4 @@ data:
       - url: https://ingress.coralogix.us/prometheus/v1
         name: 'volumez'
         remote_timeout: 120s
-        bearer_token: 'cxtp'
+        bearer_token: 'cxtp_'
