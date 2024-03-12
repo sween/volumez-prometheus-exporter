@@ -11,8 +11,8 @@ class VolumezExporter(object):
     def __init__(self):
 
         self.access_token = self.get_access_token()
-        print(self.access_token)
-        print("BLEH!")
+        # print(self.access_token)
+
         #self.refresh_token = self.trade_for_refresh_token()
         
 
@@ -25,7 +25,7 @@ class VolumezExporter(object):
             'Authorization': self.access_token, # needs to be refresh_token
             'Content-Type': 'application/json'
         }
-        print(headers)
+        # print(headers)
         healthcheck = 0
         healthcheck_response = requests.request("GET", url + '/healthcheck', headers=headers)
         healthcheckdict = healthcheck_response.json()
@@ -37,7 +37,7 @@ class VolumezExporter(object):
         else:
             healthcheck = 0
         
-        print(str(healthcheck))
+        # print(str(healthcheck))
         c = CounterMetricFamily("volumez_healthcheck", 'Overall Healthcheck Example...', labels=['tenant'])
         c.add_metric([self.get_tenantid()], healthcheck)
         yield c
@@ -51,6 +51,7 @@ class VolumezExporter(object):
             media_container.extend(medias)
 
             for media in media_container:
+                media = media.lower()
                 if media == 'state':
                     media_state = 0
                     c = CounterMetricFamily("volumez_media_" + media, ' volumez media metrics...', labels=['instance'])
@@ -75,6 +76,7 @@ class VolumezExporter(object):
             nodes_container.extend(nodes)
             for node in nodes_container:
                 #print(node + ":" + str(nodes[node]))
+                node = node.lower()
                 if node == 'state':
                     node_state = 0
                     c = CounterMetricFamily("volumez_nodes_" + node, ' volumez media metrics...', labels=['instance'])
@@ -91,20 +93,20 @@ class VolumezExporter(object):
                     yield c
 
         # attachments metrics
-        attachments_response = requests.request("GET", url + '/attachments', headers=headers)
-        attachments_list = attachments_response.json()
-        print(attachments_list)
-        attachments_container = []
-        for attachments in attachments_list:
-            print(attachments['node'])
-            attachments_container.extend(attachments)
+        #attachments_response = requests.request("GET", url + '/attachments', headers=headers)
+        #attachments_list = attachments_response.json()
+        #print(attachments_list)
+        #attachments_container = []
+        #for attachments in attachments_list:
+        #    print(attachments['node'])
+        #    attachments_container.extend(attachments)
 
-            for attachment in attachments_container:
-                print(attachment + ":" + str(attachments[attachment]))
-                c = CounterMetricFamily("volumez_attachments_" + attachment, ' volumez attachments metrics...', labels=['instance'])
-                if type(attachments[attachment]) != str:
-                    c.add_metric([attachments['node']], attachments[attachment])
-                    yield c
+        #    for attachment in attachments_container:
+        #        print(attachment + ":" + str(attachments[attachment]))
+        #        c = CounterMetricFamily("volumez_attachments_" + attachment, ' volumez attachments metrics...', labels=['instance'])
+        #        if type(attachments[attachment]) != str:
+        #            c.add_metric([attachments['node']], attachments[attachment])
+        #            yield c
 
         # alerts, filed a bug
         #alerts_response = requests.request("GET", url + '/alerts', headers=headers)

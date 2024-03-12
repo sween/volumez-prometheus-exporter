@@ -14,6 +14,8 @@ spec:
       labels:
         app: volumez-prometheus-exporter
     spec:
+      imagePullSecrets:
+      - name: volumez-pull-secret
       containers:
       - name: volumez-prometheus-exporter
         image: sween/volumez-prometheus-exporter:latest
@@ -23,8 +25,8 @@ spec:
         - name: VLZ_USER
           valueFrom:
             secretKeyRef:
-              name: volumez-secret
-              key: volumez_user
+              name: vlz-secret
+              key: vlz_user
         - name: VLZ_PASS
           valueFrom:
             secretKeyRef:
