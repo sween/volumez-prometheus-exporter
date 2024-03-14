@@ -13,7 +13,7 @@ New logic:
 Loop over attachments, for each attachment that is attached:
     node status for the found node
         media status for all media associated with the node
-    volume status for each found volume
+    volume status for each found attached volume
 
 '''
 
@@ -22,6 +22,7 @@ class VolumezExporter(object):
 
         self.access_token = self.get_access_token()
         print(self.access_token)
+        self.clusterid = os.environ['VLZ_CLUSTERID']
 
         #self.refresh_token = self.trade_for_refresh_token()
         #print(self.refresh_token)
@@ -50,8 +51,8 @@ class VolumezExporter(object):
             healthcheck = 0
         
         # print(str(healthcheck))
-        c = CounterMetricFamily("volumez_healthcheck", 'Overall Healthcheck Example...', labels=['tenant'])
-        c.add_metric([self.get_tenantid()], healthcheck)
+        c = CounterMetricFamily("volumez_healthcheck", 'Overall Healthcheck Example...', labels=['clusterid'])
+        c.add_metric([self.clusterid], healthcheck)
         yield c
 
         # top level, attachments metrics
@@ -83,10 +84,10 @@ class VolumezExporter(object):
             nodes_obj = nodes_response.json()
             #if nodes_obj['state']: # == attachments['node']:
             node_state = 0
-            c = CounterMetricFamily("volumez_nodes_state", ' volumez media metrics...', labels=['instance'])
+            c = CounterMetricFamily("volumez_nodes_state", ' volumez media metrics...', labels=['instance','clusterid'])
             if nodes_obj['state'] == "online":
                 node_state = 1
-            c.add_metric([nodes_obj['instanceid']], node_state)
+            c.add_metric([nodes_obj['instanceid'],self.clusterid], node_state)
             yield c
             # Grab the metrics from the attached media of the attached nodes
             media_list = media_response.json()
@@ -99,17 +100,18 @@ class VolumezExporter(object):
                         media = media.lower()
                         if media == 'state':
                             media_state = 0
-                            c = CounterMetricFamily("volumez_media_" + media, ' volumez media metrics...', labels=['instance','mediaid'])
+                            c = CounterMetricFamily("volumez_media_" + media, ' volumez media metrics...', labels=['instance','mediaid','clusterid'])
 
                             if medias[media] == 'online':
                                 media_state = 1
-                            c.add_metric([medias['node'],medias['mediaid']], media_state)
+                            c.add_metric([medias['node'],medias['mediaid'],self.clusterid], media_state)
                             yield c
                         if media in medias and type(medias[media]) != str:
                             print("in media...")
-                            c = CounterMetricFamily("volumez_media_" + media, ' volumez media metrics...', labels=['instance','mediaid'])
-                            c.add_metric([medias['node'],medias['mediaid']], medias[media])
-                            yield c
+                            if not medias['mediaid'].startswith("ram"):
+                                c = CounterMetricFamily("volumez_media_" + media, ' volumez media metrics...', labels=['instance','mediaid','clusterid'])
+                                c.add_metric([medias['node'],medias['mediaid'],self.clusterid], medias[media])
+                                yield c
             # Grab the status of the volume associated with the node, attachment, and media
             volumes_list = volumes_response.json()
             # print(volumes_list)
@@ -123,16 +125,16 @@ class VolumezExporter(object):
                         volume = volume.lower()
                         if volume == 'state':
                             volume_state = 0
-                            c = CounterMetricFamily("volumez_volumes_" + volume, ' volumez volumes metrics...', labels=['volumeid','name'])
+                            c = CounterMetricFamily("volumez_volumes_" + volume, ' volumez volumes metrics...', labels=['volumeid','name','clusterid'])
 
                             if volumes[volume] == 'online':
                                 volume_state = 1
 
-                            c.add_metric([volumes['volumeid'],volumes['name']], volume_state)
+                            c.add_metric([volumes['volumeid'],volumes['name'],self.clusterid], volume_state)
                             yield c
                         if volume in volumes and type(volumes[volume]) != str and volumes[volume]:
-                            c = CounterMetricFamily("volumez_volumes_" + volume, ' volumez volumes metrics...', labels=['volumeid','name'])
-                            c.add_metric([volumes['volumeid'],volumes['name']], volumes[volume])
+                            c = CounterMetricFamily("volumez_volumes_" + volume, ' volumez volumes metrics...', labels=['volumeid','name','clusterid'])
+                            c.add_metric([volumes['volumeid'],volumes['name'],self.clusterid], volumes[volume])
                             yield c
         print("done...")                             
         '''
