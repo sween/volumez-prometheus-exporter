@@ -21,7 +21,6 @@ class VolumezExporter(object):
     def __init__(self):
 
         self.access_token = self.get_access_token()
-        print(self.access_token)
         self.clusterid = os.environ['VLZ_CLUSTERID']
 
         #self.refresh_token = self.trade_for_refresh_token()
@@ -60,8 +59,90 @@ class VolumezExporter(object):
         attachments_response = requests.request("GET", url + '/attachments', headers=headers)
         media_response = requests.request("GET", url + '/media', headers=headers)
         volumes_response = requests.request("GET", url + '/volumes', headers=headers)
-        
+        jobs_response = requests.request("GET", url + '/jobs', headers=headers)
+
+
         attachments_list = attachments_response.json()
+        media_list = media_response.json()
+        volumes_list = volumes_response.json()
+        jobs_list = jobs_response.json()
+
+        # attachment status counts, high level indicator
+        c = CounterMetricFamily("volumez_" + "attachments" + "_count", ' volumez count metrics...', labels=['clusterid'])
+        c.add_metric([self.clusterid], len(attachments_list))
+        yield c
+        # online
+        list_container = []
+        for thing in attachments_list:
+            if thing["state"] == "online":
+                list_container.append(thing)
+        count = len(list_container)
+        print(count)
+        c = CounterMetricFamily("volumez_" + "attachments" + "_online_count", ' volumez online count metrics...', labels=['clusterid'])
+        c.add_metric([self.clusterid], count)
+        yield c
+        # degraded
+        list_container = []
+        for thing in attachments_list:
+            if thing["state"] == "degraded":
+                list_container.append(thing)
+        count = len(list_container)
+        print(count)
+        c = CounterMetricFamily("volumez_" + "attachments" + "_degraded_count", ' volumez degraded count metrics...', labels=['clusterid'])
+        c.add_metric([self.clusterid], count)
+        yield c     
+
+
+        # non-zero statuses
+        # attachments
+        list_container = []
+        for thing in attachments_list:
+            if thing["status"] != "":
+                list_container.append(thing)
+        count = len(list_container)
+        print(count)
+        c = CounterMetricFamily("volumez_" + "attachments" + "_nonzero_status", ' volumez nonzero metrics...', labels=['clusterid'])
+        c.add_metric([self.clusterid], count)
+        yield c
+        # media
+        list_container = []
+        for thing in media_list:
+            if thing["status"] != "":
+                print(thing["status"])
+                list_container.append(thing)
+        count = len(list_container)
+        print(count)
+        c = CounterMetricFamily("volumez_" + "media" + "_nonzero_status", ' volumez nonzero metrics...', labels=['clusterid'])
+        c.add_metric([self.clusterid], count)
+        yield c
+        # volumes
+        list_container = []
+        for thing in volumes_list:
+            if thing["status"] != "":
+                print(thing["status"])
+                list_container.append(thing)
+        count = len(list_container)
+        print(count)
+        c = CounterMetricFamily("volumez_" + "volumes" + "_nonzero_status", ' volumez nonzero metrics...', labels=['clusterid'])
+        c.add_metric([self.clusterid], count)
+        yield c
+        # jobs
+        list_container = []
+        for thing in jobs_list:
+            if thing["status"] != "":
+                print(thing["status"])
+                list_container.append(thing)
+        count = len(list_container)
+        print(count)
+        c = CounterMetricFamily("volumez_" + "jobs" + "_nonzero_status", ' volumez nonzero metrics...', labels=['clusterid'])
+        c.add_metric([self.clusterid], count)
+        yield c
+
+
+
+
+
+        # attachments
         print("attachments call..." + str(len(attachments_list)))
         attachments_container = []
         for attachments in attachments_list:
@@ -94,7 +175,7 @@ class VolumezExporter(object):
             print("media call..." + str(len(media_list)))
             media_container = []
             for medias in media_list:
-                if medias["node"] == attachments["node"]:
+                if medias["node"] == attachments["node"] and not medias['mediaid'].startswith("ram"):
                     media_container.extend(medias)
                     for media in media_container:
                         media = media.lower()
@@ -107,8 +188,9 @@ class VolumezExporter(object):
                             c.add_metric([medias['node'],medias['mediaid'],self.clusterid], media_state)
                             yield c
                         if media in medias and type(medias[media]) != str:
-                            print("in media...")
+                            #print("in media...")
                             if not medias['mediaid'].startswith("ram"):
+                                #print(medias['mediaid'])
                                 c = CounterMetricFamily("volumez_media_" + media, ' volumez media metrics...', labels=['instance','mediaid','clusterid'])
                                 c.add_metric([medias['node'],medias['mediaid'],self.clusterid], medias[media])
                                 yield c
@@ -137,6 +219,92 @@ class VolumezExporter(object):
                             c.add_metric([volumes['volumeid'],volumes['name'],self.clusterid], volumes[volume])
                             yield c
         print("done...")                             
+
+    def get_access_token(self):
+        
+        try:
+            user_pool_id = os.environ['VLZ_USERPOOLID'] # vlz iss us-east-1_j38QatKuM
+            username = os.environ['VLZ_USER']
+            password = os.environ['VLZ_PASS']
+            clientid = os.environ['VLZ_CLIENTID'] # vlz aud 34056a7lv9hg5opb7heqjvafv0
+
+            try:
+                u = Cognito(
+                    user_pool_id=user_pool_id,
+                    client_id=clientid,
+                    user_pool_region="us-east-1", # needed by warrant, should be derived from poolid doh
+                    username=username
+                )
+                u.authenticate(password=password)
+            except Exception as p:
+                print(p)
+        except Exception as e:
+            print(e)
+
+        return u.id_token
+    
+    def trade_for_refresh_token(self):
+
+        # Requests fodder
+        url = "https://api.volumez.com"
+
+        headers = {
+            #'accesstoken': self.access_token,
+            'Content-Type': 'application/json'
+        }
+        payload = {
+            'accesstoken': self.access_token,
+            'hostname': 'fhirwatch-pop-os'
+        }
+        print(self.access_token)
+        try:
+            # tenant token
+            # httpss://api.volumez.com/dev/tenant/apiaccess/credentials/refresh
+            auths_response = requests.request("POST", url + '/tenant/refreshtoken', headers=headers, data=json.dumps(payload))
+            auths_list = auths_response.json()
+            print(auths_list)
+        
+        except Exception as e:
+            print(e)
+
+        return auths_list
+
+    def refresh_token(self):
+
+        # Requests fodder
+        url = "https://api.volumez.com"
+
+        headers = {
+            'Authorization': self.access_token,
+            'Content-Type': 'application/json'
+        }
+
+        try:
+            pass
+        
+        except Exception as e:
+            print(e)
+        
+        return "gar" #auths_list["thinger"]
+
+
+if __name__ == '__main__':
+
+    polling_cycle = os.environ['VLZ_POLLING'] # make configurable for 429 hell
+    start_http_server(8000)
+    REGISTRY.register(VolumezExporter())
+    while True:
+        try:
+            REGISTRY.collect()
+            print("Polling Volumez API for metrics data....")
+            #looped e loop
+            time.sleep(int(polling_cycle))
+        except Exception as e:
+            print(e)
+            pass
+        #else:
+        #    break
+
         '''
         # media metrics
         media_response = requests.request("GET", url + '/media', headers=headers)
@@ -252,100 +420,3 @@ class VolumezExporter(object):
         #            c.add_metric([jobs['object']], jobs[job])
         #            yield c
         '''
-    def get_access_token(self):
-        
-        try:
-            user_pool_id = os.environ['VLZ_USERPOOLID'] # vlz iss us-east-1_j38QatKuM
-            username = os.environ['VLZ_USER']
-            password = os.environ['VLZ_PASS']
-            clientid = os.environ['VLZ_CLIENTID'] # vlz aud 34056a7lv9hg5opb7heqjvafv0
-            print(user_pool_id)
-            print(username)
-            print(password)
-            print(clientid)
-            try:
-                u = Cognito(
-                    user_pool_id=user_pool_id,
-                    client_id=clientid,
-                    user_pool_region="us-east-1", # needed by warrant, should be derived from poolid doh
-                    username=username
-                )
-                u.authenticate(password=password)
-            except Exception as p:
-                print(p)
-        except Exception as e:
-            print(e)
-
-        return u.id_token
-    
-    def trade_for_refresh_token(self):
-
-        # Requests fodder
-        url = "https://api.volumez.com"
-
-        headers = {
-            #'accesstoken': self.access_token,
-            'Content-Type': 'application/json'
-        }
-        payload = {
-            'accesstoken': self.access_token,
-            'hostname': 'fhirwatch-pop-os'
-        }
-        print(self.access_token)
-        try:
-            # tenant token
-            # httpss://api.volumez.com/dev/tenant/apiaccess/credentials/refresh
-            auths_response = requests.request("POST", url + '/tenant/refreshtoken', headers=headers, data=json.dumps(payload))
-            auths_list = auths_response.json()
-            print(auths_list)
-        
-        except Exception as e:
-            print(e)
-
-        return auths_list
-
-    def refresh_token(self):
-
-        # Requests fodder
-        url = "https://api.volumez.com"
-
-        headers = {
-            'Authorization': self.access_token,
-            'Content-Type': 'application/json'
-        }
-
-        try:
-            pass
-        
-        except Exception as e:
-            print(e)
-        
-        return "gar" #auths_list["thinger"]
-
-    def get_tenantid(self):
-
-        # Requests fodder
-        url = "https://api.volumez.com"
-
-        headers = {
-            'Authorization': self.refresh_token,
-            'Content-Type': 'application/json'
-        }
-
-        try:
-            pass
-        except Exception as e:
-            print(e)
-        
-        return "tenantid"
-
-if __name__ == '__main__':
-
-    polling_cycle = os.environ['VLZ_POLLING'] # make configurable for 429 hell
-    start_http_server(8000)
-    REGISTRY.register(VolumezExporter())
-    while True:
-        REGISTRY.collect()
-        print("Polling Volumez API for metrics data....")
-        #looped e loop
-        time.sleep(int(polling_cycle))

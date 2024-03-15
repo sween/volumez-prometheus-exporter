@@ -47,7 +47,7 @@ spec:
             secretKeyRef:
               name: vlz-secret
               key: vlz_polling
-        - name: VLZ_CLUSTER
+        - name: VLZ_CLUSTERID
           valueFrom:
             secretKeyRef:
               name: vlz-secret
