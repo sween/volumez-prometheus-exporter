@@ -2,6 +2,7 @@ import time
 import os
 import requests
 import json
+import sys
 
 from warrant import Cognito
 from prometheus_client.core import GaugeMetricFamily, REGISTRY, CounterMetricFamily
@@ -301,7 +302,7 @@ if __name__ == '__main__':
             time.sleep(int(polling_cycle))
         except Exception as e:
             print(e)
-            pass
+            sys.exit("some error message")
         #else:
         #    break
 
