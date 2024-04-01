@@ -218,7 +218,7 @@ class VolumezExporter(object):
                                 yield c
         except Exception as e:
             print(e)
-            sys.exit("some error message")
+            sys.exit(str(e))
         print("done...")                             
 
     def get_access_token(self):
@@ -239,8 +239,10 @@ class VolumezExporter(object):
                 u.authenticate(password=password)
             except Exception as p:
                 print(p)
+                sys.exit(str(p))
         except Exception as e:
             print(e)
+            sys.exit(str(e))
 
         return u.id_token
     
@@ -302,7 +304,7 @@ if __name__ == '__main__':
             time.sleep(int(polling_cycle))
         except Exception as e:
             print(e)
-            sys.exit("some error message")
+            sys.exit(str(e))
         #else:
         #    break
 
