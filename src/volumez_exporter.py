@@ -293,9 +293,13 @@ class VolumezExporter(object):
 
 if __name__ == '__main__':
 
-    polling_cycle = os.environ['VLZ_POLLING'] # make configurable for 429 hell
-    start_http_server(8000)
-    REGISTRY.register(VolumezExporter())
+    try:
+        polling_cycle = os.environ['VLZ_POLLING'] # make configurable for 429 hell
+        start_http_server(8000)
+        REGISTRY.register(VolumezExporter())
+    except Exception as e:
+        print(e)
+        sys.exit(str(e))
     while True:
         try:
             REGISTRY.collect()
